@@ -12,7 +12,26 @@
 		BB4DF4C624E0642C007E3EBA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BB4DF4C524E0642C007E3EBA /* Assets.xcassets */; };
 		BB4DF4C924E0642C007E3EBA /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BB4DF4C824E0642C007E3EBA /* Preview Assets.xcassets */; };
 		BB4DF4CC24E0642C007E3EBA /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BB4DF4CA24E0642C007E3EBA /* Main.storyboard */; };
+		BB4DF4E524E06E92007E3EBA /* AudioKitUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BB4DF4E324E06E92007E3EBA /* AudioKitUI.framework */; };
+		BB4DF4E624E06E92007E3EBA /* AudioKitUI.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = BB4DF4E324E06E92007E3EBA /* AudioKitUI.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		BB4DF4E724E06E92007E3EBA /* AudioKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BB4DF4E424E06E92007E3EBA /* AudioKit.framework */; };
+		BB4DF4E824E06E92007E3EBA /* AudioKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = BB4DF4E424E06E92007E3EBA /* AudioKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		BB4DF4DB24E06DEE007E3EBA /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				BB4DF4E824E06E92007E3EBA /* AudioKit.framework in Embed Frameworks */,
+				BB4DF4E624E06E92007E3EBA /* AudioKitUI.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		BB4DF4BE24E0642A007E3EBA /* AKPianoVisualizer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AKPianoVisualizer.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -23,6 +42,8 @@
 		BB4DF4CB24E0642C007E3EBA /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		BB4DF4CD24E0642C007E3EBA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		BB4DF4CE24E0642C007E3EBA /* AKPianoVisualizer.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = AKPianoVisualizer.entitlements; sourceTree = "<group>"; };
+		BB4DF4E324E06E92007E3EBA /* AudioKitUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioKitUI.framework; path = "../AudioKit-macOS/AudioKitUI.framework"; sourceTree = "<group>"; };
+		BB4DF4E424E06E92007E3EBA /* AudioKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioKit.framework; path = "../AudioKit-macOS/AudioKit.framework"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -30,6 +51,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BB4DF4E724E06E92007E3EBA /* AudioKit.framework in Frameworks */,
+				BB4DF4E524E06E92007E3EBA /* AudioKitUI.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -41,6 +64,7 @@
 			children = (
 				BB4DF4C024E0642A007E3EBA /* AKPianoVisualizer */,
 				BB4DF4BF24E0642A007E3EBA /* Products */,
+				BB4DF4D424E06D0C007E3EBA /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -74,6 +98,15 @@
 			path = "Preview Content";
 			sourceTree = "<group>";
 		};
+		BB4DF4D424E06D0C007E3EBA /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				BB4DF4E424E06E92007E3EBA /* AudioKit.framework */,
+				BB4DF4E324E06E92007E3EBA /* AudioKitUI.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -84,6 +117,7 @@
 				BB4DF4BA24E0642A007E3EBA /* Sources */,
 				BB4DF4BB24E0642A007E3EBA /* Frameworks */,
 				BB4DF4BC24E0642A007E3EBA /* Resources */,
+				BB4DF4DB24E06DEE007E3EBA /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -288,12 +322,17 @@
 				DEVELOPMENT_TEAM = DAQJYF9GL8;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/AKPianoVisualizer",
+				);
 				INFOPLIST_FILE = AKPianoVisualizer/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				OTHER_LDFLAGS = "-lc++";
 				PRODUCT_BUNDLE_IDENTIFIER = com.calewolf.AKPianoVisualizer;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
@@ -311,12 +350,17 @@
 				DEVELOPMENT_TEAM = DAQJYF9GL8;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/AKPianoVisualizer",
+				);
 				INFOPLIST_FILE = AKPianoVisualizer/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				OTHER_LDFLAGS = "-lc++";
 				PRODUCT_BUNDLE_IDENTIFIER = com.calewolf.AKPianoVisualizer;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
