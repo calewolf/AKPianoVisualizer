@@ -9,10 +9,10 @@
 import SwiftUI
 import AudioKit
 
-struct ContentView: View { // is this over
+struct ContentView: View {
     var midi = AudioKit.midi
     var engine = AudioEngine()
-    
+    //var currentNotes: [MIDINoteNumber] = []
     
     @State var midiNum: MIDINoteNumber = MIDINoteNumber(5)
     
@@ -22,7 +22,6 @@ struct ContentView: View { // is this over
             .fontWeight(.semibold)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .onAppear {
-                print("hi")
                 self.midi.openInput()
                 self.midi.addListener(Listener(midiNum: self.$midiNum, engine: self.engine))
             }
@@ -36,31 +35,24 @@ struct Listener: AKMIDIListener {
     func receivedMIDINoteOn(noteNumber: MIDINoteNumber, velocity: MIDIVelocity, channel: MIDIChannel, portID: MIDIUniqueID? = nil, offset: MIDITimeStamp = 0) {
         print(noteNumber)
         midiNum = noteNumber
-        engine.oscillator.frequency = midiNum.midiNoteToFrequency()
-        engine.oscillator.amplitude = 0.1
+        engine.bank.play(noteNumber: noteNumber, velocity: 80)
     }
     
     func receivedMIDINoteOff(noteNumber: MIDINoteNumber, velocity: MIDIVelocity, channel: MIDIChannel, portID: MIDIUniqueID? = nil, offset: MIDITimeStamp = 0) {
-        engine.oscillator.amplitude = 0
-        print("off")
+        engine.bank.stop(noteNumber: noteNumber)
     }
-    
-    
 }
 
 class AudioEngine {
-    // creates the oscillator
-    var oscillator = AKOscillator(waveform: AKTable(.sine))
-
+    let bank = AKOscillatorBank()
+    
     init() {
-        AudioKit.output = oscillator
+        AudioKit.output = bank
         do {
             try AudioKit.start()
         } catch {
             print("error starting ak")
         }
-        oscillator.amplitude = 0.05
-        oscillator.play()
     }
 }
 
