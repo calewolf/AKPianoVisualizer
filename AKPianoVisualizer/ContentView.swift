@@ -12,39 +12,49 @@ import AudioKit
 struct ContentView: View {
     var midi = AudioKit.midi
     var engine = AudioEngine()
-    //var currentNotes: [MIDINoteNumber] = []
     
-    @State var midiNum: MIDINoteNumber = MIDINoteNumber(5)
+    @State var midiNums: [MIDINoteNumber] = []
     
     var body: some View {
-        Text(midiNum.description)
+        Text(numsToString(midiNums: midiNums.sorted()))
             .font(.largeTitle)
             .fontWeight(.semibold)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .onAppear {
                 self.midi.openInput()
-                self.midi.addListener(Listener(midiNum: self.$midiNum, engine: self.engine))
+                self.midi.addListener(Listener(midiNums: self.$midiNums, engine: self.engine))
             }
+    }
+    
+    func numsToString(midiNums: [MIDINoteNumber]) -> String {
+        var ret = ""
+        for num in midiNums {
+            ret += num.description + " "
+        }
+        return ret
     }
 }
 
 struct Listener: AKMIDIListener {
-    @Binding var midiNum: MIDINoteNumber
+    @Binding var midiNums: [MIDINoteNumber]
     var engine: AudioEngine
     
     func receivedMIDINoteOn(noteNumber: MIDINoteNumber, velocity: MIDIVelocity, channel: MIDIChannel, portID: MIDIUniqueID? = nil, offset: MIDITimeStamp = 0) {
-        print(noteNumber)
-        midiNum = noteNumber
+        midiNums.append(noteNumber)
         engine.bank.play(noteNumber: noteNumber, velocity: 80)
     }
     
     func receivedMIDINoteOff(noteNumber: MIDINoteNumber, velocity: MIDIVelocity, channel: MIDIChannel, portID: MIDIUniqueID? = nil, offset: MIDITimeStamp = 0) {
+        let index = midiNums.firstIndex(of: noteNumber)
+        midiNums.remove(at: index!)
         engine.bank.stop(noteNumber: noteNumber)
     }
 }
 
 class AudioEngine {
     let bank = AKOscillatorBank()
+    
+    // TODO: Edit the sound of the oscillator?
     
     init() {
         AudioKit.output = bank
