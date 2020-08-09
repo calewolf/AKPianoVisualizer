@@ -9,7 +9,7 @@
 import SwiftUI
 import AudioKit
 
-struct ContentView: View { // test again agian
+struct ContentView: View { // end mee
     var midi = AudioKit.midi
     var engine = AudioEngine()
     
