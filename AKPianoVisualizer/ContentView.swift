@@ -9,30 +9,58 @@
 import SwiftUI
 import AudioKit
 
-// test comment again
-struct ContentView: View {
+struct ContentView: View { // test
     var midi = AudioKit.midi
-    @State var midiNum: String = "Num"
+    var engine = AudioEngine()
+    
+    
+    @State var midiNum: MIDINoteNumber = MIDINoteNumber(5)
     
     var body: some View {
-        Text(midiNum)
+        Text(midiNum.description)
             .font(.largeTitle)
             .fontWeight(.semibold)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .onAppear {
+                print("hi")
                 self.midi.openInput()
-                self.midi.addListener(Listener(midiNum: self.$midiNum))
+                self.midi.addListener(Listener(midiNum: self.$midiNum, engine: self.engine))
             }
     }
 }
 
 struct Listener: AKMIDIListener {
-    @Binding var midiNum: String
+    @Binding var midiNum: MIDINoteNumber
+    var engine: AudioEngine
     
-    func receivedMIDINoteOn(noteNumber: MIDINoteNumber, velocity: MIDIVelocity, channel: MIDIChannel,
-                            portID: MIDIUniqueID? = nil, offset: MIDITimeStamp = 0) {
+    func receivedMIDINoteOn(noteNumber: MIDINoteNumber, velocity: MIDIVelocity, channel: MIDIChannel, portID: MIDIUniqueID? = nil, offset: MIDITimeStamp = 0) {
         print(noteNumber)
-        midiNum = noteNumber.description
+        midiNum = noteNumber
+        engine.oscillator.frequency = midiNum.midiNoteToFrequency()
+        engine.oscillator.amplitude = 0.1
+    }
+    
+    func receivedMIDINoteOff(noteNumber: MIDINoteNumber, velocity: MIDIVelocity, channel: MIDIChannel, portID: MIDIUniqueID? = nil, offset: MIDITimeStamp = 0) {
+        engine.oscillator.amplitude = 0
+        print("off")
+    }
+    
+    
+}
+
+class AudioEngine {
+    // creates the oscillator
+    var oscillator = AKOscillator(waveform: AKTable(.sine))
+
+    init() {
+        AudioKit.output = oscillator
+        do {
+            try AudioKit.start()
+        } catch {
+            print("error starting ak")
+        }
+        oscillator.amplitude = 0.05
+        oscillator.play()
     }
 }
 
