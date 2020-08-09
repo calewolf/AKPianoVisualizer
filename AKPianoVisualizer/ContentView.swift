@@ -10,7 +10,7 @@ import SwiftUI
 
 struct ContentView: View {
     var body: some View {
-        Text("I just made a new branch.")
+        Text("Committing after pull request")
             .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
