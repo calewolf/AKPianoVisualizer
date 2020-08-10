@@ -29,8 +29,6 @@ struct ContentView: View {
         }
     }
     
-    
-    
     func numsToString(midiNums: [MIDINoteNumber]) -> String {
         var ret = ""
         for num in midiNums {
