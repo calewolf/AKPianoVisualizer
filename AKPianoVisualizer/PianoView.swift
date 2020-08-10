@@ -1,68 +1,29 @@
+
 import SwiftUI
-
-// Makes 88 keys for the piano
-func makeKeys() -> [Key] {
-    var keys: [Key] = [
-        Key(isWhiteKey: true), // A0
-        Key(isWhiteKey: false), // A#0
-        Key(isWhiteKey: true) // B0
-    ]
-    
-    for _ in 1...7 {
-        keys.append(Key(isWhiteKey: true))
-        keys.append(Key(isWhiteKey: false))
-        keys.append(Key(isWhiteKey: true))
-        keys.append(Key(isWhiteKey: false))
-        keys.append(Key(isWhiteKey: true))
-        keys.append(Key(isWhiteKey: true))
-        keys.append(Key(isWhiteKey: false))
-        keys.append(Key(isWhiteKey: true))
-        keys.append(Key(isWhiteKey: false))
-        keys.append(Key(isWhiteKey: true))
-        keys.append(Key(isWhiteKey: false))
-        keys.append(Key(isWhiteKey: true))
-    }
-    
-    keys.append(Key(isWhiteKey: true)) // Top C
-    
-    keys[50].isPressed = true
-    
-    return keys
-}
-
-var keys: [Key] = makeKeys()
 
 struct PianoView: View {
     
-    //var currentPressedKeys: [Int]
+    @EnvironmentObject var keyboard: Keyboard
     
-    
-    
+    // Draws a keyboard using repeated octaves
     var body: some View {
         ZStack {
             HStack(spacing: 0.0) {
-                keys[0]
-                keys[2]
-                Octave(startingIndex: 3, keys: keys)
-                Octave(startingIndex: 15, keys: keys)
-                Octave(startingIndex: 27, keys: keys)
-                Octave(startingIndex: 39, keys: keys)
-                Octave(startingIndex: 51, keys: keys)
-                Octave(startingIndex: 63, keys: keys)
-                Octave(startingIndex: 75, keys: keys)
-                keys[87]
+                keyboard.keys[0]
+                keyboard.keys[2]
+                Octave(startingIndex: 3, keys: keyboard.keys)
+                Octave(startingIndex: 15, keys: keyboard.keys)
+                Octave(startingIndex: 27, keys: keyboard.keys)
+                Octave(startingIndex: 39, keys: keyboard.keys)
+                Octave(startingIndex: 51, keys: keyboard.keys)
+                Octave(startingIndex: 63, keys: keyboard.keys)
+                Octave(startingIndex: 75, keys: keyboard.keys)
+                keyboard.keys[87]
             }
-            keys[1].offset(x: -475, y: -18)
-        }
+            keyboard.keys[1].offset(x: -475, y: -18)
+        }.frame(width: 988, height: 100)
+        .clipped()
     }
-    
-//    func updatePressedKeys() {
-//        for key in self.currentPressedKeys {
-//            keys[key - 21].isPressed = true
-//        }
-//    }
-    
-    
 }
 
 struct Octave: View {
@@ -109,12 +70,12 @@ struct Key: View {
             .fill(isPressed ? Color.blue : (isWhiteKey ? Color.white : Color.black))
             .frame(width: isWhiteKey ? 19.0 : 10.0, height: isWhiteKey ? 100.0 : 70.0)
             .border(Color.black, width: 1)
+            //.animation(.default)
     }
 }
 
-
 struct PianoView_Previews: PreviewProvider {
     static var previews: some View {
-        PianoView()
+        PianoView().environmentObject(Keyboard())
     }
 }

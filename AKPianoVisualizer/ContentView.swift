@@ -10,10 +10,11 @@ import SwiftUI
 import AudioKit
 
 struct ContentView: View {
-    var midi = AudioKit.midi
-    var engine = AudioEngine()
-    
+
     @State var midiNums: [MIDINoteNumber] = []
+    @EnvironmentObject var keyboard: Keyboard
+    var isPreview: Bool
+    var midi = AudioKit.midi
     
     var body: some View {
         VStack {
@@ -22,10 +23,13 @@ struct ContentView: View {
                 .fontWeight(.semibold)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .onAppear {
-                    self.midi.openInput()
-                    self.midi.addListener(Listener(midiNums: self.$midiNums, engine: self.engine))
-            }
-            PianoView()
+                    if (!self.isPreview) {
+                        let engine = AudioEngine()
+                        self.midi.openInput()
+                        self.midi.addListener(Listener(midiNums: self.$midiNums, engine: engine, keyboard: self.keyboard))
+                    }
+                  }
+            PianoView().environmentObject(keyboard)
         }
     }
     
@@ -41,31 +45,27 @@ struct ContentView: View {
 struct Listener: AKMIDIListener {
     @Binding var midiNums: [MIDINoteNumber]
     var engine: AudioEngine
+    var keyboard: Keyboard
     
     func receivedMIDINoteOn(noteNumber: MIDINoteNumber, velocity: MIDIVelocity, channel: MIDIChannel, portID: MIDIUniqueID? = nil, offset: MIDITimeStamp = 0) {
         midiNums.append(noteNumber)
         engine.bank.play(noteNumber: noteNumber, velocity: 80)
-        updatePressedKeys()
+        
+        // I don't know why this works
+        DispatchQueue.main.async {
+            self.keyboard.keys[Int(noteNumber) - 21].isPressed = true
+        }
     }
     
     func receivedMIDINoteOff(noteNumber: MIDINoteNumber, velocity: MIDIVelocity, channel: MIDIChannel, portID: MIDIUniqueID? = nil, offset: MIDITimeStamp = 0) {
         let index = midiNums.firstIndex(of: noteNumber)
         midiNums.remove(at: index!)
         engine.bank.stop(noteNumber: noteNumber)
-    }
-    
-    func updatePressedKeys() {
-        for key in numsToIntArr() {
-            keys[key - 21].isPressed = true
+        DispatchQueue.main.async {
+            self.keyboard.keys[Int(noteNumber) - 21].isPressed = false
         }
-    }
-    
-    func numsToIntArr() -> [Int] {
-        var ret: [Int] = []
-        for num in self.midiNums {
-            ret.append(Int(num))
-        }
-        return ret
+        
+        
     }
 }
 
@@ -86,6 +86,6 @@ class AudioEngine {
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        ContentView()
+        ContentView(midiNums: [60, 64, 68], isPreview: true).environmentObject(Keyboard())
     }
 }
