@@ -25,31 +25,42 @@ func makeKeys() -> [Key] {
     
     keys.append(Key(isWhiteKey: true)) // Top C
     
+    keys[50].isPressed = true
+    
     return keys
 }
 
+var keys: [Key] = makeKeys()
+
 struct PianoView: View {
     
-    let keys: [Key] = makeKeys()
+    //var currentPressedKeys: [Int]
+    
+    
     
     var body: some View {
         ZStack {
             HStack(spacing: 0.0) {
                 keys[0]
                 keys[2]
-                Octave(startingIndex: 3, keys: self.keys)
-                Octave(startingIndex: 15, keys: self.keys)
-                Octave(startingIndex: 15, keys: self.keys)
-                Octave(startingIndex: 15, keys: self.keys)
-                Octave(startingIndex: 15, keys: self.keys)
-                Octave(startingIndex: 15, keys: self.keys)
-                Octave(startingIndex: 15, keys: self.keys)
+                Octave(startingIndex: 3, keys: keys)
+                Octave(startingIndex: 15, keys: keys)
+                Octave(startingIndex: 27, keys: keys)
+                Octave(startingIndex: 39, keys: keys)
+                Octave(startingIndex: 51, keys: keys)
+                Octave(startingIndex: 63, keys: keys)
+                Octave(startingIndex: 75, keys: keys)
                 keys[87]
             }
             keys[1].offset(x: -475, y: -18)
         }
-        
     }
+    
+//    func updatePressedKeys() {
+//        for key in self.currentPressedKeys {
+//            keys[key - 21].isPressed = true
+//        }
+//    }
     
     
 }
@@ -91,7 +102,7 @@ struct Octave: View {
 
 struct Key: View {
     let isWhiteKey: Bool
-    @State var isPressed = false
+    var isPressed = false
     
     var body: some View {
         Rectangle()

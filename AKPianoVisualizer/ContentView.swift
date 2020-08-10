@@ -16,15 +16,20 @@ struct ContentView: View {
     @State var midiNums: [MIDINoteNumber] = []
     
     var body: some View {
-        Text(numsToString(midiNums: midiNums.sorted()))
-            .font(.largeTitle)
-            .fontWeight(.semibold)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .onAppear {
-                self.midi.openInput()
-                self.midi.addListener(Listener(midiNums: self.$midiNums, engine: self.engine))
+        VStack {
+            Text(numsToString(midiNums: midiNums.sorted()))
+                .font(.largeTitle)
+                .fontWeight(.semibold)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .onAppear {
+                    self.midi.openInput()
+                    self.midi.addListener(Listener(midiNums: self.$midiNums, engine: self.engine))
             }
+            PianoView()
+        }
     }
+    
+    
     
     func numsToString(midiNums: [MIDINoteNumber]) -> String {
         var ret = ""
@@ -42,12 +47,27 @@ struct Listener: AKMIDIListener {
     func receivedMIDINoteOn(noteNumber: MIDINoteNumber, velocity: MIDIVelocity, channel: MIDIChannel, portID: MIDIUniqueID? = nil, offset: MIDITimeStamp = 0) {
         midiNums.append(noteNumber)
         engine.bank.play(noteNumber: noteNumber, velocity: 80)
+        updatePressedKeys()
     }
     
     func receivedMIDINoteOff(noteNumber: MIDINoteNumber, velocity: MIDIVelocity, channel: MIDIChannel, portID: MIDIUniqueID? = nil, offset: MIDITimeStamp = 0) {
         let index = midiNums.firstIndex(of: noteNumber)
         midiNums.remove(at: index!)
         engine.bank.stop(noteNumber: noteNumber)
+    }
+    
+    func updatePressedKeys() {
+        for key in numsToIntArr() {
+            keys[key - 21].isPressed = true
+        }
+    }
+    
+    func numsToIntArr() -> [Int] {
+        var ret: [Int] = []
+        for num in self.midiNums {
+            ret.append(Int(num))
+        }
+        return ret
     }
 }
 
@@ -71,4 +91,3 @@ struct ContentView_Previews: PreviewProvider {
         ContentView()
     }
 }
-
