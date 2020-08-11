@@ -22,12 +22,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // Create the window and set the content view. 
         window = NSWindow(
             contentRect: NSRect(x: 0, y: 0, width: 480, height: 300),
-            styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView],
+            styleMask: [.titled, .closable, .miniaturizable, .fullSizeContentView],
             backing: .buffered, defer: false)
         window.center()
         window.setFrameAutosaveName("Main Window")
         window.contentView = NSHostingView(rootView: contentView)
         window.makeKeyAndOrderFront(nil)
+
+
+        window?.titlebarAppearsTransparent = true
+        window?.styleMask.insert(.fullSizeContentView)
     }
 
     func applicationWillTerminate(_ aNotification: Notification) {

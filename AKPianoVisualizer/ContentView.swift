@@ -17,20 +17,26 @@ struct ContentView: View {
     var midi = AudioKit.midi
     
     var body: some View {
-        VStack {
+        // TODO: Clean up UI
+        VStack(spacing: 0.0) {
             Text(numsToString(midiNums: midiNums.sorted()))
                 .font(.largeTitle)
-                .fontWeight(.semibold)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .onAppear {
-                    if (!self.isPreview) {
-                        let engine = AudioEngine()
-                        self.midi.openInput()
-                        self.midi.addListener(Listener(midiNums: self.$midiNums, engine: engine, keyboard: self.keyboard))
-                    }
-                  }
+                .fontWeight(.regular)
+                .frame(width: 1000, height: 50)
+                .foregroundColor(Color.white)
+                .padding(.bottom, 30.0)
             PianoView().environmentObject(keyboard)
         }
+        .frame(width: 1300, height: 700)
+        .background(VisualEffectView(material: NSVisualEffectView.Material.ultraDark, blendingMode: NSVisualEffectView.BlendingMode.behindWindow))
+        .onAppear {
+          if (!self.isPreview) {
+              let engine = AudioEngine()
+              self.midi.openInput()
+              self.midi.addListener(Listener(midiNums: self.$midiNums, engine: engine, keyboard: self.keyboard))
+          }
+        }
+        
     }
     
     func numsToString(midiNums: [MIDINoteNumber]) -> String {
@@ -39,6 +45,27 @@ struct ContentView: View {
             ret += num.description + " "
         }
         return ret
+    }
+}
+
+struct VisualEffectView: NSViewRepresentable
+{
+    var material: NSVisualEffectView.Material
+    var blendingMode: NSVisualEffectView.BlendingMode
+
+    func makeNSView(context: Context) -> NSVisualEffectView
+    {
+        let visualEffectView = NSVisualEffectView()
+        visualEffectView.material = material
+        visualEffectView.blendingMode = blendingMode
+        visualEffectView.state = NSVisualEffectView.State.active
+        return visualEffectView
+    }
+
+    func updateNSView(_ visualEffectView: NSVisualEffectView, context: Context)
+    {
+        visualEffectView.material = material
+        visualEffectView.blendingMode = blendingMode
     }
 }
 
