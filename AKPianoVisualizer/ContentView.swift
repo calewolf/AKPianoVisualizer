@@ -17,31 +17,26 @@ struct ContentView: View {
     
     @State var volume: Double = 0.1
     
+    var currentHeight: CGFloat = 0.0
+    
     @EnvironmentObject var keyboard: Keyboard
     var isPreview: Bool
     var midi = AudioKit.midi
     
     var body: some View {
         VStack(alignment: .center) {
-            TitleMenuBar(volume: $volume)
-            
-            Text(self.midiNums.isEmpty ? " " : numsToString(midiNums: midiNums.sorted()))
-                .font(.largeTitle)
-                .fontWeight(.regular)
-                .frame(height: 50)
-                .foregroundColor(Color.white)
-                .border(Color.white, width: 1)
-            
-            //ScrollView(.horizontal) {
-                PianoView().environmentObject(keyboard)
-                    .scaleEffect(scale)
-                    .frame(width: self.frameWidth, height: 200)
-            //}.border(Color.white, width: 1)
-            
-            
+            GeometryReader { geo in
+                PianoView().environmentObject(self.keyboard)
+                    .scaleEffect(geo.size.width / 988.0)
+                    .scaleEffect(self.scale)
+            }
+            .padding()
         }
-        .frame(minWidth: 1100, maxWidth: .infinity)
-        //.frame(width: 1300, height: 700)
+            
+        .frame(minWidth: 988, minHeight: 150)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .clipped()
+        
         .background(VisualEffectView(material: NSVisualEffectView.Material.ultraDark, blendingMode: NSVisualEffectView.BlendingMode.behindWindow))
         .onAppear {
           if (!self.isPreview) {
@@ -49,10 +44,6 @@ struct ContentView: View {
               self.midi.openInput()
               self.midi.addListener(Listener(midiNums: self.$midiNums, engine: engine, keyboard: self.keyboard))
           }
-            
-            
-            
-
         }
         
     }
