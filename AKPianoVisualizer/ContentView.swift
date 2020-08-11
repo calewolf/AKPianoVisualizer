@@ -13,44 +13,35 @@ struct ContentView: View {
 
     @State var midiNums: [MIDINoteNumber] = []
     @State var scale: CGFloat = 1.0
-    @State var frameWidth: CGFloat = 1300.0
+    @State var frameWidth: CGFloat = 1100.0
+    
+    @State var volume: Double = 0.1
+    
     @EnvironmentObject var keyboard: Keyboard
     var isPreview: Bool
     var midi = AudioKit.midi
     
     var body: some View {
-        VStack() {
-             HStack() {
-                    Button(action: {
-                        self.scale = self.scale * 2
-                        self.frameWidth = self.frameWidth * 2
-                    }) {
-                        Text("Zoom In")
-                    }
-                    Button(action: {
-                        self.scale = self.scale * 0.5
-                        self.frameWidth = self.frameWidth * 0.5
-                    }) {
-                        Text("Zoom Out")
-                    }
-                }
-                .padding(.top, 30.0)
+        VStack(alignment: .center) {
+            TitleMenuBar(volume: $volume)
             
             Text(self.midiNums.isEmpty ? " " : numsToString(midiNums: midiNums.sorted()))
                 .font(.largeTitle)
                 .fontWeight(.regular)
-                .frame(width: 1000, height: 50)
+                .frame(height: 50)
                 .foregroundColor(Color.white)
+                .border(Color.white, width: 1)
             
-            ScrollView(.horizontal) {
+            //ScrollView(.horizontal) {
                 PianoView().environmentObject(keyboard)
                     .scaleEffect(scale)
-                    .frame(width: self.frameWidth, height: 500)
-            }
+                    .frame(width: self.frameWidth, height: 200)
+            //}.border(Color.white, width: 1)
             
             
         }
-        .frame(width: 1300, height: 700)
+        .frame(minWidth: 1100, maxWidth: .infinity)
+        //.frame(width: 1300, height: 700)
         .background(VisualEffectView(material: NSVisualEffectView.Material.ultraDark, blendingMode: NSVisualEffectView.BlendingMode.behindWindow))
         .onAppear {
           if (!self.isPreview) {
@@ -61,7 +52,7 @@ struct ContentView: View {
             
             
             
-            
+
         }
         
     }
@@ -76,46 +67,7 @@ struct ContentView: View {
 }
 
 
-// Recieves MIDI input and triggers notes
-struct Listener: AKMIDIListener {
-    @Binding var midiNums: [MIDINoteNumber]
-    var engine: AudioEngine
-    var keyboard: Keyboard
-    
-    func receivedMIDINoteOn(noteNumber: MIDINoteNumber, velocity: MIDIVelocity, channel: MIDIChannel, portID: MIDIUniqueID? = nil, offset: MIDITimeStamp = 0) {
-        midiNums.append(noteNumber)
-        engine.bank.play(noteNumber: noteNumber, velocity: 80)
-        
-        // I don't know why this works
-        DispatchQueue.main.async {
-            self.keyboard.keys[Int(noteNumber) - 21].isPressed = true
-        }
-    }
-    
-    func receivedMIDINoteOff(noteNumber: MIDINoteNumber, velocity: MIDIVelocity, channel: MIDIChannel, portID: MIDIUniqueID? = nil, offset: MIDITimeStamp = 0) {
-        let index = midiNums.firstIndex(of: noteNumber)
-        midiNums.remove(at: index!)
-        engine.bank.stop(noteNumber: noteNumber)
-        DispatchQueue.main.async {
-            self.keyboard.keys[Int(noteNumber) - 21].isPressed = false
-        }
-    }
-}
 
-class AudioEngine {
-    let bank = AKOscillatorBank()
-    
-    // TODO: Edit the sound of the oscillator?
-    
-    init() {
-        AudioKit.output = bank
-        do {
-            try AudioKit.start()
-        } catch {
-            print("error starting ak")
-        }
-    }
-}
 
 // The NSVisualEffectView that controls the translucent window
 struct VisualEffectView: NSViewRepresentable
@@ -142,5 +94,33 @@ struct VisualEffectView: NSViewRepresentable
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         ContentView(midiNums: [60, 64, 68], isPreview: true).environmentObject(Keyboard())
+    }
+}
+
+struct TitleMenuBar: View {
+    @Binding var volume: Double
+    
+    var body: some View {
+        HStack() {
+            VolumeSlider(volume: $volume)
+            Spacer()
+            Button(action: ({})) {
+                Text("Settings")
+            }
+        }
+    }
+}
+
+struct VolumeSlider: View {
+    @Binding var volume: Double
+    var body: some View {
+        HStack {
+            Text("􀊡")
+                .foregroundColor(Color.white)
+            Slider(value: $volume, in: 0...0.1)
+            Text("􀊩")
+                .foregroundColor(Color.white)
+        }
+        .frame(width: 200.0)
     }
 }
