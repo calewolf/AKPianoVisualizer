@@ -12,20 +12,43 @@ import AudioKit
 struct ContentView: View {
 
     @State var midiNums: [MIDINoteNumber] = []
+    @State var scale: CGFloat = 1.0
+    @State var frameWidth: CGFloat = 1300.0
     @EnvironmentObject var keyboard: Keyboard
     var isPreview: Bool
     var midi = AudioKit.midi
     
     var body: some View {
-        // TODO: Clean up UI
-        VStack(spacing: 0.0) {
-            Text(numsToString(midiNums: midiNums.sorted()))
+        VStack() {
+             HStack() {
+                    Button(action: {
+                        self.scale = self.scale * 2
+                        self.frameWidth = self.frameWidth * 2
+                    }) {
+                        Text("Zoom In")
+                    }
+                    Button(action: {
+                        self.scale = self.scale * 0.5
+                        self.frameWidth = self.frameWidth * 0.5
+                    }) {
+                        Text("Zoom Out")
+                    }
+                }
+                .padding(.top, 30.0)
+            
+            Text(self.midiNums.isEmpty ? " " : numsToString(midiNums: midiNums.sorted()))
                 .font(.largeTitle)
                 .fontWeight(.regular)
                 .frame(width: 1000, height: 50)
                 .foregroundColor(Color.white)
-                .padding(.bottom, 30.0)
-            PianoView().environmentObject(keyboard)
+            
+            ScrollView(.horizontal) {
+                PianoView().environmentObject(keyboard)
+                    .scaleEffect(scale)
+                    .frame(width: self.frameWidth, height: 500)
+            }
+            
+            
         }
         .frame(width: 1300, height: 700)
         .background(VisualEffectView(material: NSVisualEffectView.Material.ultraDark, blendingMode: NSVisualEffectView.BlendingMode.behindWindow))
@@ -35,6 +58,10 @@ struct ContentView: View {
               self.midi.openInput()
               self.midi.addListener(Listener(midiNums: self.$midiNums, engine: engine, keyboard: self.keyboard))
           }
+            
+            
+            
+            
         }
         
     }
@@ -48,27 +75,8 @@ struct ContentView: View {
     }
 }
 
-struct VisualEffectView: NSViewRepresentable
-{
-    var material: NSVisualEffectView.Material
-    var blendingMode: NSVisualEffectView.BlendingMode
 
-    func makeNSView(context: Context) -> NSVisualEffectView
-    {
-        let visualEffectView = NSVisualEffectView()
-        visualEffectView.material = material
-        visualEffectView.blendingMode = blendingMode
-        visualEffectView.state = NSVisualEffectView.State.active
-        return visualEffectView
-    }
-
-    func updateNSView(_ visualEffectView: NSVisualEffectView, context: Context)
-    {
-        visualEffectView.material = material
-        visualEffectView.blendingMode = blendingMode
-    }
-}
-
+// Recieves MIDI input and triggers notes
 struct Listener: AKMIDIListener {
     @Binding var midiNums: [MIDINoteNumber]
     var engine: AudioEngine
@@ -91,8 +99,6 @@ struct Listener: AKMIDIListener {
         DispatchQueue.main.async {
             self.keyboard.keys[Int(noteNumber) - 21].isPressed = false
         }
-        
-        
     }
 }
 
@@ -108,6 +114,28 @@ class AudioEngine {
         } catch {
             print("error starting ak")
         }
+    }
+}
+
+// The NSVisualEffectView that controls the translucent window
+struct VisualEffectView: NSViewRepresentable
+{
+    var material: NSVisualEffectView.Material
+    var blendingMode: NSVisualEffectView.BlendingMode
+
+    func makeNSView(context: Context) -> NSVisualEffectView
+    {
+        let visualEffectView = NSVisualEffectView()
+        visualEffectView.material = material
+        visualEffectView.blendingMode = blendingMode
+        visualEffectView.state = NSVisualEffectView.State.active
+        return visualEffectView
+    }
+
+    func updateNSView(_ visualEffectView: NSVisualEffectView, context: Context)
+    {
+        visualEffectView.material = material
+        visualEffectView.blendingMode = blendingMode
     }
 }
 
